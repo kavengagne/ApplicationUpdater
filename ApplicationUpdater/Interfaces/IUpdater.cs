@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+
 
 namespace ApplicationUpdater
 {
@@ -7,6 +9,7 @@ namespace ApplicationUpdater
         Version CurrentRelease { get; }
 
         ICheckForUpdateResult CheckForUpdate();
+        Task<ICheckForUpdateResult> CheckForUpdateAsync();
         void Update();
     }
 }

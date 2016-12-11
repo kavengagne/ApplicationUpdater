@@ -13,8 +13,8 @@ namespace ApplicationUpdater
                                     .ToList();
             if (properties.Count < 2)
             {
-                // TODO: May ot be the right behavior for a Factory method
-                throw new ArgumentException(@"Release format is <filename> : <version> : [comment]", "release");
+                // TODO: May not be the right behavior for a Factory method
+                throw new ArgumentException(@"Release format is <filename> : <version> : [comment]", nameof(release));
             }
 
             return new Release(properties[0], properties[1]);

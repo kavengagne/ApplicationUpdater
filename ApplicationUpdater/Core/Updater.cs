@@ -5,6 +5,8 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
+
 
 namespace ApplicationUpdater
 {
@@ -18,7 +20,7 @@ namespace ApplicationUpdater
 
 
         #region Public Properties
-        public Version CurrentRelease { get; private set; }
+        public Version CurrentRelease { get; }
         #endregion Public Properties
 
 
@@ -27,18 +29,18 @@ namespace ApplicationUpdater
         {
             if (string.IsNullOrWhiteSpace(httpServerUrl))
             {
-                throw new ArgumentNullException("httpServerUrl");
+                throw new ArgumentNullException(nameof(httpServerUrl));
             }
             httpServerUrl = NormalizeUrl(httpServerUrl);
             if (!IsWebServerAddress(httpServerUrl))
             {
-                throw new ArgumentException(@"Must be a valid HTTP or HTTPS address.", "httpServerUrl");
+                throw new ArgumentException(@"Must be a valid HTTP or HTTPS address.", nameof(httpServerUrl));
             }
             _httpServerUrl = httpServerUrl;
 
             if (string.IsNullOrWhiteSpace(releasesFileName))
             {
-                throw new ArgumentNullException("releasesFileName");
+                throw new ArgumentNullException(nameof(releasesFileName));
             }
             _releasesFileName = releasesFileName;
             CurrentRelease = GetCurrentVersion();
@@ -47,13 +49,16 @@ namespace ApplicationUpdater
 
 
         #region Public Methods
+        public async Task<ICheckForUpdateResult> CheckForUpdateAsync()
+        {
+            IReleaseResponse response = await GetLatestRelease();
+            _latestRelease = response.LatestRelease;
+            return new CheckForUpdateResult(CurrentRelease, _latestRelease.Version, response);
+        }
+
         public ICheckForUpdateResult CheckForUpdate()
         {
-            IReleaseResponse response = GetLatestRelease();
-            
-            _latestRelease = response.LatestRelease;
-
-            return new CheckForUpdateResult(CurrentRelease, _latestRelease.Version, response);
+            return CheckForUpdateAsync().Result;
         }
 
         public void Update()
@@ -77,6 +82,26 @@ namespace ApplicationUpdater
 
 
         #region Private Methods
+        private async Task<IReleaseResponse> GetLatestRelease()
+        {
+            using (var client = new HttpClient { BaseAddress = new Uri(_httpServerUrl) })
+            {
+                string releases = string.Empty;
+                string errorMessage = string.Empty;
+
+                var response = await client.GetAsync(_releasesFileName);
+                if (response.IsSuccessStatusCode)
+                {
+                    releases = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    errorMessage = response.ReasonPhrase;
+                }
+                return new ReleaseResponse(response.IsSuccessStatusCode, response.StatusCode, releases, errorMessage);
+            }
+        }
+
         private static string GetApplicationPath()
         {
             var rootPath = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).FullName;
@@ -120,10 +145,9 @@ namespace ApplicationUpdater
             var processId = Process.GetCurrentProcess().Id;
             var sourcePath = releasePath.TrimEnd('\\');
             var destinationPath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-            var executableFile = Assembly.GetEntryAssembly().Location.TrimEnd('\\');
+            var executableFile = Assembly.GetEntryAssembly().Location?.TrimEnd('\\');
 
-            var arguments = string.Format("{0} \"{1}\" \"{2}\" \"{3}\"",
-                                          processId, sourcePath, destinationPath, executableFile);
+            var arguments = $"{processId} \"{sourcePath}\" \"{destinationPath}\" \"{executableFile}\"";
             return arguments;
         }
 
@@ -161,26 +185,6 @@ namespace ApplicationUpdater
             var client = new WebClient { BaseAddress = _httpServerUrl };
             client.DownloadFile(releaseFileName + ".zip", tempFileName);
             return tempFileName;
-        }
-
-        private IReleaseResponse GetLatestRelease()
-        {
-            using (var client = new HttpClient { BaseAddress = new Uri(_httpServerUrl) })
-            {
-                string releases = string.Empty;
-                string errorMessage = string.Empty;
-
-                var response = client.GetAsync(_releasesFileName).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    releases = response.Content.ReadAsStringAsync().Result;
-                }
-                else
-                {
-                    errorMessage = response.ReasonPhrase;
-                }
-                return new ReleaseResponse(response.IsSuccessStatusCode, response.StatusCode, releases, errorMessage);
-            }
         }
 
         private static Version GetCurrentVersion()
