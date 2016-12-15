@@ -70,7 +70,7 @@ namespace ApplicationUpdater
 
             var applicationPath = GetApplicationPath();
             var releasePath = GetReleasePath(applicationPath);
-            
+
             RenewDirectory(releasePath);
             ExtractRemoteReleaseArchive(releasePath);
 
@@ -89,17 +89,40 @@ namespace ApplicationUpdater
                 string releases = string.Empty;
                 string errorMessage = string.Empty;
 
-                var response = await client.GetAsync(_releasesFileName);
+                HttpResponseMessage response;
+                try
+                {
+                    response = await client.GetAsync(_releasesFileName);
+                }
+                catch (Exception ex)
+                {
+                    // TODO KG - Write error to EventLog
+                    response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                }
                 if (response.IsSuccessStatusCode)
                 {
                     releases = await response.Content.ReadAsStringAsync();
                 }
                 else
                 {
-                    errorMessage = response.ReasonPhrase;
+                    errorMessage = GetErrorMessageFromHttpResponse(response);
                 }
                 return new ReleaseResponse(response.IsSuccessStatusCode, response.StatusCode, releases, errorMessage);
             }
+        }
+
+        // TODO: KG - Localize this
+        private string GetErrorMessageFromHttpResponse(HttpResponseMessage response)
+        {
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                return "Unable to connect to server";
+            }
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return "Unable to fetch releases";
+            }
+            return "Check for updates failed";
         }
 
         private static string GetApplicationPath()

@@ -35,7 +35,8 @@ namespace ApplicationUpdater
             List<Release> releaseEntries = GetReleasesEntries(releases);
             if (!releaseEntries.Any())
             {
-                return new Release("", Assembly.GetEntryAssembly().GetName().Version.ToString());
+                //return new Release("", Assembly.GetEntryAssembly().GetName().Version.ToString());
+                return new Release("", "");
             }
 
             Release latestRelease = releaseEntries.First();
