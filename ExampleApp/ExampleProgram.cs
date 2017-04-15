@@ -8,7 +8,7 @@ namespace ExampleApp
     {
         static void Main()
         {
-            IUpdater updater = UpdaterFactory.Create("http://updater.staging.s3.amazonws.com", "releases.dat");
+            IUpdater updater = UpdaterFactory.Create("http://your-url.com", "releases.txt");
             
             Console.WriteLine(@"Version is " + updater.CurrentRelease);
             

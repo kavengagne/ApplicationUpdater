@@ -21,6 +21,7 @@ namespace ApplicationUpdater
 
         #region Public Properties
         public Version CurrentRelease { get; }
+        public Action BeforeUpdate { get; set; }
         #endregion Public Properties
 
 
@@ -31,7 +32,7 @@ namespace ApplicationUpdater
             {
                 throw new ArgumentNullException(nameof(httpServerUrl));
             }
-            httpServerUrl = NormalizeUrl(httpServerUrl);
+            httpServerUrl = NormalizeHttpUrl(httpServerUrl);
             if (!IsWebServerAddress(httpServerUrl))
             {
                 throw new ArgumentException(@"Must be a valid HTTP or HTTPS address.", nameof(httpServerUrl));
@@ -67,6 +68,8 @@ namespace ApplicationUpdater
             {
                 return;
             }
+
+            BeforeUpdate?.Invoke();
 
             var applicationPath = GetApplicationPath();
             var releasePath = GetReleasePath(applicationPath);
@@ -112,7 +115,7 @@ namespace ApplicationUpdater
         }
 
         // TODO: KG - Localize this
-        private string GetErrorMessageFromHttpResponse(HttpResponseMessage response)
+        private static string GetErrorMessageFromHttpResponse(HttpResponseMessage response)
         {
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
@@ -150,7 +153,6 @@ namespace ApplicationUpdater
         private void ExtractRemoteReleaseArchive(string releasePath)
         {
             var zipFileName = GetReleaseFileZip(_latestRelease.FileName);
-            // extract files
             ZipFile.ExtractToDirectory(zipFileName, releasePath);
         }
 
@@ -180,7 +182,7 @@ namespace ApplicationUpdater
             File.WriteAllBytes(updaterPath, updaterBytes);
         }
 
-        private static string NormalizeUrl(string url)
+        private static string NormalizeHttpUrl(string url)
         {
             url = url.ToLowerInvariant();
             if (url.StartsWith("http://") || url.StartsWith("https://"))
