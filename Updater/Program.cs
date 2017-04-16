@@ -7,7 +7,7 @@ using Updater.Loggers;
 
 namespace Updater
 {
-    public class UpdaterProgram
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -15,6 +15,7 @@ namespace Updater
             if (args == null || args.Length < 4)
             {
                 Console.WriteLine("Usage: Updater <processId> \"<sourcePath>\" \"<destinationPath>\" \"<executableFile>\"");
+                Debug.WriteLine("Usage: Updater <processId> \"<sourcePath>\" \"<destinationPath>\" \"<executableFile>\"");
                 return;
             }
 
@@ -22,13 +23,21 @@ namespace Updater
             var updaterConfig = new UpdaterConfig(args);
             
             WaitForCallerExit(updaterConfig.ProcessId);
+
+            // TODO: KG - Pourrait être plus conservateur et effacer seulement les fichiers installés par nous.
+            // TODO: KG - Faire un backup de l'installation courante avant d'updater.
             DeleteDestinationFolderIfExists(updaterConfig.DestinationPath);
 
             var copySucceeded = ExceptionHelper.TrySafe<Exception>(
                 () => DirectoryHelper.CopyDirectory(updaterConfig.SourcePath, updaterConfig.DestinationPath));
             if (copySucceeded)
             {
+                // TODO: KG - Here we do nothing on error. Should log to somewhere at least.
                 ExceptionHelper.TrySafe<Exception>(() => Process.Start(updaterConfig.ExecutableFile));
+            }
+            else
+            {
+                // TODO: KG - Do not fail in silence. Report to EventLog and show message.
             }
         }
 
@@ -42,6 +51,9 @@ namespace Updater
 
         private static void WaitForCallerExit(int processId)
         {
+            // TODO: KG - Ne pas attendre éternellement pour le process.
+            // TODO: KG - Si le process ne termine pas après X secondes, Rollback la mise a jour.
+            // TODO: KG - Lors du rollback, effacer tout (backup zip, release folder)
             var executableProcess = GetExecutableById(processId);
             if (executableProcess != null)
             {

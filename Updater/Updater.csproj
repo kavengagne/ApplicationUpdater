@@ -36,6 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -60,7 +61,7 @@
     <Compile Include="Helpers\ExceptionHelper.cs" />
     <Compile Include="Loggers\NullLogger.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
-    <Compile Include="UpdaterProgram.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config\UpdaterConfig.cs" />
   </ItemGroup>
@@ -89,4 +90,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <CopySource Include="$(TargetPath)" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CopySource)" DestinationFiles="@(CopySource->'$(SolutionDir)ApplicationUpdater\Resources\%(Filename)%(Extension)')" />
+    <!--<Exec Command="ping -n 6 127.0.0.1 > nul"/>-->
+  </Target>
 </Project>

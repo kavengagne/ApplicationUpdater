@@ -1,13 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationUpdater", "ApplicationUpdater\ApplicationUpdater.csproj", "{7E2C4EA6-4059-41B8-A7AD-AF08C2A08AA4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C11AC20C-ECF5-458C-A89D-D35E307CAD77} = {C11AC20C-ECF5-458C-A89D-D35E307CAD77}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleApp", "ExampleApp\ExampleApp.csproj", "{12295BB3-F15F-4115-8FB9-DF6FD6BE046E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{C11AC20C-ECF5-458C-A89D-D35E307CAD77}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{958C6007-BEDE-479E-89E9-D73A4B383595}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

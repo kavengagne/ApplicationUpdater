@@ -8,7 +8,7 @@ namespace ExampleApp
     {
         static void Main()
         {
-            IUpdater updater = UpdaterFactory.Create("http://your-url.com", "releases.txt");
+            IUpdater updater = UpdaterFactory.Create("http://appupdater.com:84", "releases.txt");
             
             Console.WriteLine(@"Version is " + updater.CurrentRelease);
             

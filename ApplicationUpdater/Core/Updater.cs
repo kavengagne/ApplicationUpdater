@@ -6,10 +6,15 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApplicationUpdater.Properties;
 
 
 namespace ApplicationUpdater
 {
+    // TODO: KG - Add to Add/Remove if not existing (Per User)
+    // TODO: KG - Create an uninstall executable
+    // TODO: KG - Add Start Menu Shortcut at the same time
+
     internal class Updater : IUpdater
     {
         #region Private Fields
@@ -69,6 +74,7 @@ namespace ApplicationUpdater
                 return;
             }
 
+            // TODO: KG - Wrapper dans un TrySafe pour rapporter l'erreur
             BeforeUpdate?.Invoke();
 
             var applicationPath = GetApplicationPath();
@@ -79,6 +85,8 @@ namespace ApplicationUpdater
 
             LaunchUpdater(releasePath, applicationPath);
 
+            // TODO: KG - Ne pas Exit si LaunchUpdater est en erreur.
+            // TODO: KG - Retourner un état de cette méthode pour gérer les erreurs.
             Environment.Exit(0);
         }
         #endregion Public Methods
@@ -92,16 +100,19 @@ namespace ApplicationUpdater
                 string releases = string.Empty;
                 string errorMessage = string.Empty;
 
+                // TODO: KG - Utiliser TrySafe avec un return value typé
                 HttpResponseMessage response;
                 try
                 {
                     response = await client.GetAsync(_releasesFileName);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // TODO KG - Write error to EventLog
                     response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
                 }
+
+                // TODO: KG - Raffiner cette partie, c'est vraiment laid et difficile à comprendre, incluant l'objet ReleaseResponse
                 if (response.IsSuccessStatusCode)
                 {
                     releases = await response.Content.ReadAsStringAsync();
@@ -137,6 +148,7 @@ namespace ApplicationUpdater
 
         private string GetReleasePath(string rootPath)
         {
+            // TODO: KG - Changer la location pour utiliser %TEMP%
             var releasePath = Path.Combine(rootPath, _latestRelease.FileName);
             return releasePath;
         }
@@ -158,15 +170,19 @@ namespace ApplicationUpdater
 
         private static void LaunchUpdater(string releasePath, string rootPath)
         {
+            // TODO: KG - Changer la location de Update.exe pour utiliser %TEMP%
             var updaterPath = Path.Combine(rootPath, "Updater.exe");
             WriteUpdaterExecutable(updaterPath);
 
             var arguments = GetUpdaterArguments(releasePath);
+
+            // TODO: KG - Handle les exceptions ici et ajouter return value pour ne pas Exit en cas de problème.
             Process.Start(new ProcessStartInfo(updaterPath, arguments));
         }
 
         private static string GetUpdaterArguments(string releasePath)
         {
+            // TODO: KG - Ajuster les path en conséquences des changements mentionnés ci-haut dans les TODO
             var processId = Process.GetCurrentProcess().Id;
             var sourcePath = releasePath.TrimEnd('\\');
             var destinationPath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
