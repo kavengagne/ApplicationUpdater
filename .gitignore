@@ -32,3 +32,4 @@ _ReSharper*/
 node_modules/
 
 *.exe
+*.nupkg
