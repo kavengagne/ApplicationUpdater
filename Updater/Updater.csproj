@@ -102,6 +102,6 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>powershell -File "$(SolutionDir)IncrementBuildVersion.ps1" -filename "$(ProjectDir)Properties\AssemblyInfo.cs"</PostBuildEvent>
+    <PostBuildEvent>powershell -File "$(SolutionDir)IncrementBuildVersion.ps1" -filename "$(ProjectDir)Properties\AssemblyInfo.cs" -revision</PostBuildEvent>
   </PropertyGroup>
 </Project>
