@@ -8,7 +8,7 @@
     <owners>$author$</owners>
     <licenseUrl>https://github.com/kavengagne/ApplicationUpdater/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/kavengagne/ApplicationUpdater</projectUrl>
-    <iconUrl>https://github.com/kavengagne/ApplicationUpdater/blob/kg-todos/updater.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/kavengagne/ApplicationUpdater/kg-todos/updater.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>First Release.</releaseNotes>

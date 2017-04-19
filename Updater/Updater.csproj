@@ -97,4 +97,11 @@
     <Copy SourceFiles="@(CopySource)" DestinationFiles="@(CopySource->'$(SolutionDir)ApplicationUpdater\Resources\%(Filename)%(Extension)')" />
     <!--<Exec Command="ping -n 6 127.0.0.1 > nul"/>-->
   </Target>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>powershell -File "$(SolutionDir)IncrementBuildVersion.ps1" -filename "$(ProjectDir)Properties\AssemblyInfo.cs"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
